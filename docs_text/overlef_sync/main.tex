@@ -1,32 +1,77 @@
-\documentclass{article}
-\usepackage{graphicx} % Required for inserting images
-\usepackage{biblatex}
+\documentclass[a4paper,11pt]{article}
 \usepackage{geometry}
-\addbibresource{lit.bib}
-
+\usepackage[T1]{fontenc}
+\usepackage{apacite}
+\bibliographystyle{apacite}
+\usepackage{xurl}
+\urlstyle{same}
 \geometry{a4paper, margin=3cm}
-
-\title{Research Proposal}
-\author{Polina Revina}
-\date{\today}
 
 \begin{document}
 
-\maketitle
+\begin{titlepage}
+    \centering
+    \vspace*{2cm}
+    
+    \textbf{\Large Research proposal}
+    
+    \vspace{2cm}
+    
+    \textbf{\Huge Enhancing Causal Inference with Network Information}
+    
+    \vfill
+    
+    \textbf{Polina Revina (8461465)}
+    
+    \vspace{0.5cm}
+    
+    \textbf{Supervisors: Erik-Jan van Kesteren, Javier Garcia-Bernardo}
+    
+    \vspace{0.5cm}
+    
+    \textit{Methodology and Statistics for the Behavioural, Biomedical and Social Sciences\\
+    Utrecht University}
+    
+    \vfill
+    \textbf{\today}
+    \vspace{0.5cm}
+    
+    \textbf{Word count: 750}
+    \vspace{0.5cm}
+    
+    Candidate journals: Statistical Science; Sociological Methods \& Research
+    
+\end{titlepage}
 
 \section{Background}
 
-As the literature on social network data grows over the years, the causal inference under such data structure remains perplexed. Rubin's causal model, which many causal inference methods rely on, assumes non-interference, meaning that a unit’s potential outcome doesn’t depend on its neighbours' outcome \cite{cox1958planning}. However, in many observational studies, this assumption is not plausible if exposure to the outcome can be transmitted through social interaction or physical proximity of units. For instance, students who received tutoring support can interact with other students who weren’t assigned to this program thus resulting in the spillover effect \cite{forastiere2021identification}. Another example is sharing news on the social network, which can affect other users in the group. Using methods that don’t account for this or wrongly imposing this assumption can lead to an entirely wrong conclusion about the effect.
+In many experimental and observational studies, interference among units is present, meaning that the treatment of one unit affects its neighbours’ outcomes \cite{cox1958planning}. This happens due to exposure transmission through social interaction or physical proximity of units. For instance, students who received tutoring support can interact with other students not assigned to this program and transmit the knowledge obtained during tutoring \cite{forastiere2021identification}. As was demonstrated by Sobel, using methods that don’t account for interference or wrongly imposing this assumption can lead to an entirely wrong conclusion about the effect \cite{sobel2006randomized}.
 
-In this research, I aim to (i) generate synthetic network data using autoregression models, (ii) estimate the bias of causal inference methods that don’t account for interference, and (ii) apply methods that take into consideration network effect. 
+Different strategies were proposed in the literature to deal with interference effects. One possibility is to impose an additional assumption on the form that interference is taking. We can impose a \textit{partial interference} assumption, meaning that the population can be divided into clusters and units can interfere within clusters but not across them. This assumption is sometimes coupled with \textit{stratified interference}, proposed by Hundgens and Halloran, meaning that the interference is only affected by the proportion of other units with treatment in the group \cite{hudgens2008toward}. 
+
+Regarding experiment strategies, one possible design is to use clusters as randomisation units, another is a sequential two-stage randomisation, where in the first stage initial treatment is assigned and based on their response the final treatment is assigned in the second stage. Regarding the inference, there are also some options in the literature. Saevje et al extended the Horvitz-Thompson estimator to the presence of a partial interference but its clear use in observational network data is lacking \cite{savje2021average}. Van der Laan \cite{van2014causal} proposed a TMLE estimator and Ogburn et al \cite{ogburn2024causal} extended it to allow for dependence based on contamination. Forastiere et al \cite{forastiere2021identification} developed a new method based on propensity score that balances individual and neighbourhood covariates, which no longer require partial interference assumption.
+
+However, current methods are more focused on experimental design than observational studies. There is still a limited understanding of the degree of bias of causal inference estimators in observational studies under different exposure scenarios and network structures. Existing methods often rely on the partial interference assumption, which may not reflect more complex scenarios where interference can occur across groups. 
 
 \section{Research plan}
-\subsection*{Data Generation Process}
+This project aims to enhance causal inference methods for observational data by incorporating network information. In this research, I aim to identify causal effect estimation bias through a simulation study and to explore methods that can correct this bias. Thus, the research question is \textit{"What is the bias of causal inference estimators that doesn't account for interference in the presence of it?"}. 
 
-To generate a network I’ll use the Barabasi-Albert model which is commonly used for modelling real-world systems, for instance, friendship groups or high school networks. It generates networks with a power-law degree distribution, resulting in some nodes having a much larger number of connections than others. 
+\subsection*{Data generation process}
+In the first step, I'll generate synthetic data that simulates how the outcome and the treatment spread through the network. To generate a network I’ll use the Barabasi-Albert model which is commonly used for modelling real-world systems, for instance, friendship groups or high school networks. It generates networks with a power-law degree distribution, resulting in some nodes having a much larger number of connections than others. 
 
-There are several types of network effects to simulate. Relational network effect means that the outcome of the unit depends on its covariates, as well as its neighbours' outcomes and covariates. The positional network effect depicts an effect on a network level, meaning that unit's position in network affects the outcome and the structural means the effect of the network as a whole. To simulate these scenarios we can apply spatial lag model approaches. The value of the outcome of one unit depends on the value of its neighbours, leading to dependencies between neighbours. There are also different ways to simulate treatment, it can be random or depend on unit’s covariates. There are several ways to model this, using logistic regression model or some linear threshold. \\ 
+Data is simulated based on the network obtained in the previous step using spatial autocorrelation models, which model the effect of network dependencies. Under these models, each individual’s outcome can be presented as (i) weighted average responses of neighbouring units, (ii) a set of covariates and (iii) independent noise. The set of covariates includes two individual-level covariates, a measure of an individual characteristic and degree of centrality, and one network-level covariate, network efficiency. This allows the simulation of the relational effect from having treated neighbours, positional from having a certain position in the network and structural effect from the overall network structure.
 
-\printbibliography
+In modelling the contagion mechanism, I assume a simple contagion, meaning that one connection to the treated is enough for the effect transmission. As the treatment of the unit depends on its covariates, it will be modelled using logistic regression.
+
+\subsection*{Causal effect estimation}
+Several causal inference methods will be applied to data from the previous step to estimate effect and bias from true causal effect. I chose matching, which is a statistical technique used in observational studies to estimate causal effects by pairing units with similar characteristics across treatment and control groups. 
+
+\subsection*{New methods}
+The final step is dedicated to exploring methods to correct this bias by utilizing network information, namely graph neural networks.
+
+\subsection*{Software}
+All computations will be done in Python and the following libraries: Networkx for network generation, Pymatch for matching implementation, PyG and DGL for graph machine learning. 
+
+\bibliography{lit.bib }
 
 \end{document}
