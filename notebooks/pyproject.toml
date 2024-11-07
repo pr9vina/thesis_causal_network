@@ -14,6 +14,8 @@ ipykernel = "^6.29.5"
 matplotlib = "^3.9.2"
 scipy = "^1.14.1"
 pymatch = "^0.3.4"
+tqdm = "^4.66.5"
+statsmodels = "^0.14.4"
 
 
 [build-system]
